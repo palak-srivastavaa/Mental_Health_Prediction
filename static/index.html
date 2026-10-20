@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MindPulse AI - Student Wellbeing Assessment</title>
+  <meta name="description" content="Compact, interactive AI student mental health & digital wellbeing dashboard.">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Ambient Background Canvas -->
+  <div class="ambient-mesh">
+    <div class="glow-orb orb-1"></div>
+    <div class="glow-orb orb-2"></div>
+  </div>
+
+  <!-- Confetti Canvas -->
+  <canvas id="confetti-canvas"></canvas>
+
+  <div class="app-viewport">
+    
+    <!-- Ultra-Slim Compact Header -->
+    <header class="app-header">
+      <div class="header-left">
+        <div class="brand-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+            <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1>MindPulse AI</h1>
+          <span class="version-tag">ML v1.0</span>
+        </div>
+      </div>
+
+      <!-- Quick Archetype Presets In Header -->
+      <div class="header-archetypes" id="archetype-chips">
+        <span class="arch-label">Presets:</span>
+        <button type="button" class="archetype-btn active" data-archetype="balanced" title="Balanced lifestyle">
+          <span>🌱 Balanced</span>
+        </button>
+        <button type="button" class="archetype-btn" data-archetype="nightowl" title="Late night study & low sleep">
+          <span>🦉 Night Owl</span>
+        </button>
+        <button type="button" class="archetype-btn" data-archetype="overload" title="Heavy screen time & high stress">
+          <span>📱 Overload</span>
+        </button>
+        <button type="button" class="archetype-btn" data-archetype="active" title="High physical activity & focus">
+          <span>⚡ Active</span>
+        </button>
+      </div>
+
+      <!-- Header Tools (Health, Sound, Theme, Privacy) -->
+      <div class="header-right">
+        <div id="health-status" class="health-badge connecting" title="ML Pipeline Status">
+          <span class="status-dot"></span>
+          <span id="health-text">Online</span>
+        </div>
+
+        <button type="button" id="audio-toggle-btn" class="icon-toggle-btn" title="Toggle Sound (Web Audio)" aria-label="Toggle Sound">
+          <span class="sound-icon-on">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+            </svg>
+          </span>
+          <span class="sound-icon-off hidden">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+              <line x1="23" y1="9" x2="17" y2="15"></line>
+              <line x1="17" y1="9" x2="23" y2="15"></line>
+            </svg>
+          </span>
+        </button>
+
+        <button type="button" id="theme-toggle-btn" class="icon-toggle-btn" title="Toggle Theme" aria-label="Toggle Theme">
+          <span class="theme-icon-light">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="5"></circle>
+              <line x1="12" y1="1" x2="12" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="23"></line>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+              <line x1="1" y1="12" x2="3" y2="12"></line>
+              <line x1="21" y1="12" x2="23" y2="12"></line>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+          </span>
+          <span class="theme-icon-dark hidden">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+          </span>
+        </button>
+
+        <span class="confidential-pill" title="Private and confidential assessment">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+          100% Private
+        </span>
+      </div>
+    </header>
+
+    <!-- Main View Area (Fits seamlessly on 1 screen) -->
+    <main class="page-content-wrapper">
+
+      <!-- ======================================================= -->
+      <!-- STEP 1: Compact Cockpit Dashboard (No Excess Scrolling) -->
+      <!-- ======================================================= -->
+      <div class="step-view active" id="step-view-1">
+        <form id="predict-form" class="cockpit-grid" novalidate>
+          
+          <!-- PANEL 1: Profile & Mindset (Left Column) -->
+          <section class="card panel-card panel-profile">
+            <div class="panel-header">
+              <span class="panel-badge">01</span>
+              <h3>Profile & Context</h3>
+            </div>
+
+            <div class="panel-body">
+              <!-- Row 1: Age & Country -->
+              <div class="form-row-2">
+                <div class="form-group">
+                  <label for="Age">Age <span class="required">*</span></label>
+                  <div class="input-with-unit">
+                    <input type="number" id="Age" name="Age" min="5" max="120" value="21" required>
+                    <span class="unit">yrs</span>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="Country">Country</label>
+                  <input type="text" id="Country" name="Country" value="USA" placeholder="e.g. USA, India">
+                </div>
+              </div>
+
+              <!-- Row 2: Gender Segmented -->
+              <div class="form-group">
+                <label>Gender <span class="required">*</span></label>
+                <input type="hidden" id="Gender" name="Gender" value="Female">
+                <div class="segmented-control compact" data-for="Gender">
+                  <button type="button" class="seg-btn active" data-val="Female">👩 Female</button>
+                  <button type="button" class="seg-btn" data-val="Male">👨 Male</button>
+                  <button type="button" class="seg-btn" data-val="Other">🌈 Other</button>
+                </div>
+              </div>
+
+              <!-- Row 3: Academic Level Segmented -->
+              <div class="form-group">
+                <label>Academic Level <span class="required">*</span></label>
+                <input type="hidden" id="Academic_Level" name="Academic_Level" value="Undergraduate">
+                <div class="segmented-control compact" data-for="Academic_Level">
+                  <button type="button" class="seg-btn" data-val="High School">🎒 High School</button>
+                  <button type="button" class="seg-btn active" data-val="Undergraduate">🎓 Undergrad</button>
+                  <button type="button" class="seg-btn" data-val="Graduate">🏛️ Graduate</button>
+                </div>
+              </div>
+
+              <!-- Row 4: Stress Level (4 Compact Cards) -->
+              <div class="form-group">
+                <label>Stress Level <span class="required">*</span></label>
+                <input type="hidden" id="Stress_Level" name="Stress_Level" value="Medium">
+                <div class="stress-compact-grid" data-for="Stress_Level">
+                  <button type="button" class="stress-pill" data-val="Low">
+                    <span>😌 Low</span>
+                  </button>
+                  <button type="button" class="stress-pill active" data-val="Medium">
+                    <span>😐 Medium</span>
+                  </button>
+                  <button type="button" class="stress-pill" data-val="High">
+                    <span>😰 High</span>
+                  </button>
+                  <button type="button" class="stress-pill" data-val="Very High">
+                    <span>💥 Extreme</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Row 5: Platform & Purpose Selectors -->
+              <div class="form-row-2">
+                <div class="form-group">
+                  <label for="Most_Used_Platform">Top Platform</label>
+                  <select id="Most_Used_Platform" name="Most_Used_Platform" class="compact-select">
+                    <option value="Instagram" selected>📸 Instagram</option>
+                    <option value="TikTok">🎵 TikTok</option>
+                    <option value="YouTube">▶️ YouTube</option>
+                    <option value="WhatsApp">💬 WhatsApp</option>
+                    <option value="Snapchat">👻 Snapchat</option>
+                    <option value="Twitter">𝕏 Twitter / X</option>
+                    <option value="Facebook">📘 Facebook</option>
+                    <option value="LinkedIn">💼 LinkedIn</option>
+                    <option value="Other">🌐 Other</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label for="Purpose_Of_Use">Main Purpose</label>
+                  <select id="Purpose_Of_Use" name="Purpose_Of_Use" class="compact-select">
+                    <option value="Entertainment" selected>🎬 Entertainment</option>
+                    <option value="Networking">💬 Socializing</option>
+                    <option value="Education">📚 Study & Research</option>
+                    <option value="News">📰 News & Info</option>
+                    <option value="Other">✨ Other</option>
+                  </select>
+                </div>
+              </div>
+
+            </div>
+          </section>
+
+          <!-- PANEL 2: Lifestyle Sliders (Center Column) -->
+          <section class="card panel-card panel-sliders">
+            <div class="panel-header">
+              <span class="panel-badge">02</span>
+              <h3>Daily Habits & Screen Time</h3>
+              <span class="panel-sub">Drag sliders to adjust</span>
+            </div>
+
+            <div class="panel-body sliders-compact-list">
+
+              <!-- Slider 1: Sleep -->
+              <div class="slider-row">
+                <div class="slider-meta">
+                  <span class="s-icon">🛌</span>
+                  <label for="Sleep_Hours_Per_Night">Nightly Sleep</label>
+                  <span class="s-val" id="Sleep_Hours_Per_Night_val">7.0 hrs</span>
+                </div>
+                <div class="slider-control">
+                  <input type="range" id="Sleep_Hours_Per_Night" name="Sleep_Hours_Per_Night" min="0" max="14" step="0.5" value="7.0">
+                  <span class="slider-tag healthy" id="sleep-status-tag">✨ Optimal (7-9h)</span>
+                </div>
+              </div>
+
+              <!-- Slider 2: Screen Time -->
+              <div class="slider-row">
+                <div class="slider-meta">
+                  <span class="s-icon">📱</span>
+                  <label for="Avg_Daily_Usage_Hours">Social Screen Time</label>
+                  <span class="s-val" id="Avg_Daily_Usage_Hours_val">4.0 hrs</span>
+                </div>
+                <div class="slider-control">
+                  <input type="range" id="Avg_Daily_Usage_Hours" name="Avg_Daily_Usage_Hours" min="0" max="16" step="0.5" value="4.0">
+                  <span class="slider-tag warning" id="screen-status-tag">⚠️ Heavy (>3.5h)</span>
+                </div>
+              </div>
+
+              <!-- Slider 3: Daily Phone Checks -->
+              <div class="slider-row">
+                <div class="slider-meta">
+                  <span class="s-icon">🔔</span>
+                  <label for="Daily_Unlocks">Daily Phone Checks</label>
+                  <span class="s-val" id="Daily_Unlocks_val">45</span>
+                </div>
+                <div class="slider-control">
+                  <input type="range" id="Daily_Unlocks" name="Daily_Unlocks" min="0" max="250" step="5" value="45">
+                  <span class="slider-tag moderate" id="unlocks-status-tag">🟡 Normal (35-70)</span>
+                </div>
+              </div>
+
+              <!-- Slider 4: Study Hours -->
+              <div class="slider-row">
+                <div class="slider-meta">
+                  <span class="s-icon">📚</span>
+                  <label for="Study_Hours">Daily Study Time</label>
+                  <span class="s-val" id="Study_Hours_val">3.5 hrs</span>
+                </div>
+                <div class="slider-control">
+                  <input type="range" id="Study_Hours" name="Study_Hours" min="0" max="16" step="0.5" value="3.5">
+                  <span class="slider-tag healthy" id="study-status-tag">🎯 Balanced (2-5h)</span>
+                </div>
+              </div>
+
+              <!-- Slider 5: Physical Movement -->
+              <div class="slider-row">
+                <div class="slider-meta">
+                  <span class="s-icon">🏃</span>
+                  <label for="Physical_Activity_Hours">Daily Movement / Workout</label>
+                  <span class="s-val" id="Physical_Activity_Hours_val">1.5 hrs</span>
+                </div>
+                <div class="slider-control">
+                  <input type="range" id="Physical_Activity_Hours" name="Physical_Activity_Hours" min="0" max="8" step="0.5" value="1.5">
+                  <span class="slider-tag healthy" id="exercise-status-tag">💪 Active (1-2h)</span>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Action & Submit Footer inside Panel 2 -->
+            <div class="panel-action-footer">
+              <button type="submit" id="submit-btn" class="btn-primary-action">
+                <span class="btn-spinner" id="btn-spinner"></span>
+                <span class="btn-label" id="btn-label">
+                  <span>Generate AI Wellbeing Report</span>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                  </svg>
+                </span>
+              </button>
+              <div class="action-footer-sub">
+                <button type="button" class="btn-micro-breath" id="launch-breathing-btn" title="60s Guided Breathing">
+                  <span>🧘 60s Guided Breath</span>
+                </button>
+                <button type="button" class="btn-subtle-reset" id="reset-btn">Reset Defaults</button>
+              </div>
+            </div>
+
+            <!-- Inline Error Box inside Center Panel if validation fails -->
+            <div id="inline-error-box" class="inline-error-card compact hidden">
+              <span class="error-icon">⚠️</span>
+              <ul id="inline-error-list"></ul>
+            </div>
+          </section>
+
+        </form>
+
+        <!-- Bottom Live Vitality & Student Benchmarks Strip -->
+        <div class="vitality-matrix-bar">
+          <div class="vitality-metric">
+            <div class="v-icon-wrap">🛌</div>
+            <div class="v-details">
+              <span class="v-label">Sleep Target (WHO 7–9h)</span>
+              <strong id="v-sleep-stat">7.5h &bull; <span class="v-tag good">Optimal Window</span></strong>
+            </div>
+          </div>
+
+          <div class="vitality-metric">
+            <div class="v-icon-wrap">📱</div>
+            <div class="v-details">
+              <span class="v-label">Social Media Exposure</span>
+              <strong id="v-screen-stat">2.5h/day &bull; <span class="v-tag good">Healthy Balance</span></strong>
+            </div>
+          </div>
+
+          <div class="vitality-metric">
+            <div class="v-icon-wrap">🏃</div>
+            <div class="v-details">
+              <span class="v-label">Physical Movement Target</span>
+              <strong id="v-exercise-stat">1.5h &bull; <span class="v-tag good">10.5 hrs / week</span></strong>
+            </div>
+          </div>
+
+          <div class="vitality-metric">
+            <div class="v-icon-wrap">🧠</div>
+            <div class="v-details">
+              <span class="v-label">Student Habit Rank</span>
+              <strong id="v-resilience-stat">Top 20% &bull; <span class="v-tag good">High Vitality</span></strong>
+            </div>
+          </div>
+
+          <div class="vitality-ai-meta">
+            <span class="ai-chip">✨ Random Forest ML</span>
+            <span class="privacy-note">🔒 Real-Time Inference</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ======================================================= -->
+      <!-- STEP 2: Compact Report View (Panoramic 3-Column Layout)  -->
+      <!-- ======================================================= -->
+      <div class="step-view hidden" id="step-view-2">
+        <section class="card report-card">
+          
+          <!-- Compact Report Header Bar -->
+          <div class="report-top-bar">
+            <button type="button" class="btn-back-compact" id="back-to-step1-btn" title="Back to edit habits">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+              </svg>
+              <span>Edit Habits</span>
+            </button>
+
+            <div class="report-title-center">
+              <h2>Student Wellbeing Assessment Report</h2>
+              <span class="report-timestamp" id="report-timestamp">Generated Just Now</span>
+            </div>
+
+            <div class="top-bar-placeholder" style="width: 105px;" aria-hidden="true"></div>
+          </div>
+
+          <!-- Panoramic 3-Panel Report Dashboard (No vertical scroll) -->
+          <div class="report-panoramic-grid">
+            
+            <!-- PANEL 1: Score & Reliability (Left Column) -->
+            <div class="rep-panel rep-score-panel">
+              <div class="score-radial-wrap">
+                <svg class="progress-ring" width="140" height="140" viewBox="0 0 140 140">
+                  <circle class="progress-ring__circle-bg" stroke-width="11" fill="transparent" r="58" cx="70" cy="70"/>
+                  <circle id="progress-circle" class="progress-ring__circle" stroke-width="11" stroke-dasharray="364.4" stroke-dashoffset="120" fill="transparent" r="58" cx="70" cy="70"/>
+                </svg>
+                <div class="score-inner">
+                  <span id="score-value" class="score-number">--</span>
+                  <span class="score-scale">out of 10.0</span>
+                </div>
+              </div>
+
+              <div id="score-category-badge" class="category-pill moderate">Moderate (Stable)</div>
+              <p id="score-summary" class="summary-text">Your routine shows healthy baseline vitality with key areas for optimization.</p>
+
+              <!-- Reliability Index -->
+              <div class="rep-reliability-box">
+                <div class="rel-row">
+                  <span>Ensemble Reliability</span>
+                  <strong id="confidence-val">--%</strong>
+                </div>
+                <div class="rel-track"><div id="confidence-bar" class="rel-fill" style="width: 0%;"></div></div>
+                <small class="rel-sub">Based on <span id="trees-evaluated-num">100</span> Random Forest decision trees</small>
+              </div>
+
+              <!-- Mini Stats -->
+              <div class="rep-stats-grid">
+                <div class="stat-cell">
+                  <span class="stat-lbl">Screen:Sleep</span>
+                  <strong id="metric-ratio">0.57x</strong>
+                </div>
+                <div class="stat-cell">
+                  <span class="stat-lbl">Unlocks/Day</span>
+                  <strong id="metric-unlocks">45</strong>
+                </div>
+                <div class="stat-cell">
+                  <span class="stat-lbl">Reported Stress</span>
+                  <strong id="metric-stress">Medium</strong>
+                </div>
+              </div>
+            </div>
+
+            <!-- PANEL 2: Action Guidance Checklist (Center Column) -->
+            <div class="rep-panel rep-guidance-panel">
+              <div class="rep-guidance-header-wrap">
+                <div class="rep-panel-header">
+                  <div class="rep-panel-title">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path>
+                      <path d="m9 12 2 2 4-4"></path>
+                    </svg>
+                    <span>Action Plan & Goals</span>
+                  </div>
+                  <span class="goal-tracker"><span id="goals-committed-count">0</span> of <span id="goals-total-count">4</span> Committed</span>
+                </div>
+                <p class="guidance-instruction">Click items to commit to your wellness routine:</p>
+              </div>
+              
+              <ul id="recommendations-list" class="rec-compact-list">
+                <!-- Injected via JavaScript -->
+              </ul>
+            </div>
+
+            <!-- PANEL 3: What-If Simulator & Support (Right Column) -->
+            <div class="rep-panel rep-simulator-panel">
+              
+              <!-- Counselor Notice (if triggered) -->
+              <div id="counselor-alert" class="counselor-mini-banner hidden">
+                <div class="c-icon">👨‍⚕️</div>
+                <div class="c-info">
+                  <strong>Consult a Campus Counselor</strong>
+                  <p>Elevated strain detected. Consider a confidential check-in.</p>
+                  <button type="button" class="btn-counselor-link" id="open-counselor-modal-btn">View 24/7 Helplines</button>
+                </div>
+              </div>
+
+              <!-- Interactive Simulator -->
+              <div class="simulator-compact-box">
+                <div class="sim-header">
+                  <span class="sim-badge">Interactive</span>
+                  <h4>What-If Habit Simulator</h4>
+                </div>
+                <p class="sim-desc">Adjust habits to simulate live wellbeing score improvement:</p>
+
+                <div class="sim-slider-group">
+                  <div class="sim-row">
+                    <label for="sim-sleep-delta">🛌 Add Sleep</label>
+                    <span id="sim-sleep-delta-val" class="sim-pill">+1.0 hr</span>
+                  </div>
+                  <input type="range" id="sim-sleep-delta" min="0" max="3" step="0.5" value="1.0">
+                </div>
+
+                <div class="sim-slider-group">
+                  <div class="sim-row">
+                    <label for="sim-screen-delta">📵 Reduce Screen</label>
+                    <span id="sim-screen-delta-val" class="sim-pill">-1.5 hrs</span>
+                  </div>
+                  <input type="range" id="sim-screen-delta" min="0" max="4" step="0.5" value="1.5">
+                </div>
+
+                <button type="button" class="btn-run-sim" id="run-simulation-btn">
+                  <span class="btn-spinner hidden" id="sim-spinner"></span>
+                  <span id="sim-btn-text">Simulate Recalculation</span>
+                </button>
+
+                <div id="sim-result-badge" class="sim-result-compact hidden">
+                  <span class="sim-arrow">📈</span>
+                  <span id="sim-diff-text">Projected Score: <strong>7.4</strong> (<strong>+1.2 Boost</strong>)</span>
+                </div>
+              </div>
+
+              <!-- Retake Button at bottom of right panel -->
+              <button type="button" class="btn-retake-action" id="retake-btn">
+                <span>🔄 Modify Daily Routine & Retake</span>
+              </button>
+
+            </div>
+
+          </div>
+
+        </section>
+      </div>
+
+    </main>
+
+  </div>
+
+  <!-- MODAL: 4-7-8 Guided Breathing -->
+  <div id="breathing-modal" class="modal-overlay hidden" role="dialog" aria-modal="true">
+    <div class="modal-card breathing-modal-card">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <span class="modal-icon">🧘</span>
+          <h3>4-7-8 Guided Box Breathing</h3>
+        </div>
+        <button type="button" class="modal-close-btn" id="close-breathing-modal">✕</button>
+      </div>
+      
+      <div class="modal-body text-center">
+        <p class="modal-subtitle">Follow the rhythm: Inhale deeply (4s), hold gently (7s), exhale slowly (8s).</p>
+        
+        <div class="breathing-stage">
+          <div class="breath-ring-outer"></div>
+          <div class="breath-ring-middle"></div>
+          <div id="breath-bubble" class="breath-bubble">
+            <span id="breath-phase-text" class="breath-phase">Ready?</span>
+            <span id="breath-countdown" class="breath-counter">Click Start</span>
+          </div>
+        </div>
+
+        <div class="breathing-controls">
+          <button type="button" class="btn-primary-action" id="start-breathing-btn">Start Breathing</button>
+          <button type="button" class="btn-subtle-reset" id="stop-breathing-btn" disabled>Stop</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Helplines -->
+  <div id="counselor-modal" class="modal-overlay hidden" role="dialog" aria-modal="true">
+    <div class="modal-card counselor-modal-card">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <span class="modal-icon">🤝</span>
+          <h3>Confidential Student Helplines & Support</h3>
+        </div>
+        <button type="button" class="modal-close-btn" id="close-counselor-modal">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="helplines-grid">
+          <div class="helpline-item">
+            <div class="helpline-country">🇺🇸 US & Canada</div>
+            <div class="helpline-service">988 Suicide & Crisis Lifeline</div>
+            <div class="helpline-number">Call / Text <strong>988</strong> (24/7) | Text <strong>HOME</strong> to <strong>741741</strong></div>
+          </div>
+          <div class="helpline-item">
+            <div class="helpline-country">🇬🇧 United Kingdom</div>
+            <div class="helpline-service">Samaritans & Student Space</div>
+            <div class="helpline-number">Call <strong>116 123</strong> (24/7) | Text <strong>SHOUT</strong> to <strong>85258</strong></div>
+          </div>
+          <div class="helpline-item">
+            <div class="helpline-country">🇮🇳 India</div>
+            <div class="helpline-service">Tele-MANAS & Vandrevala Foundation</div>
+            <div class="helpline-number">Call <strong>14416</strong> (Toll-Free 24/7) | <strong>+91 9999 666 555</strong></div>
+          </div>
+          <div class="helpline-item">
+            <div class="helpline-country">🇦🇺 Australia</div>
+            <div class="helpline-service">Lifeline & Beyond Blue</div>
+            <div class="helpline-number">Call <strong>13 11 14</strong> (24/7) | <strong>1300 22 4636</strong></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <button type="button" class="btn-primary-action" id="dismiss-counselor-modal">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
