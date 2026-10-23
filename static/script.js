@@ -6,86 +6,7 @@
 document.addEventListener('DOMContentLoaded', () => {
 
   // =========================================================================
-  // 1. Audio Synthesis System (Web Audio API)
-  // =========================================================================
-  let audioCtx = null;
-  let isSoundEnabled = true;
-
-  function initAudio() {
-    if (!audioCtx) {
-      const AudioContext = window.AudioContext || window.webkitAudioContext;
-      if (AudioContext) {
-        audioCtx = new AudioContext();
-      }
-    }
-    if (audioCtx && audioCtx.state === 'suspended') {
-      audioCtx.resume();
-    }
-  }
-
-  function playTone(freq, duration = 0.08, type = 'sine', gainVal = 0.05) {
-    if (!isSoundEnabled) return;
-    try {
-      initAudio();
-      if (!audioCtx) return;
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.type = type;
-      osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-      gain.gain.setValueAtTime(gainVal, audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      osc.start();
-      osc.stop(audioCtx.currentTime + duration);
-    } catch (e) {
-      // Audio not supported or blocked
-    }
-  }
-
-  function playSliderTick() {
-    playTone(420, 0.04, 'triangle', 0.02);
-  }
-
-  function playPresetChime() {
-    playTone(523.25, 0.08, 'sine', 0.04);
-    setTimeout(() => playTone(659.25, 0.12, 'sine', 0.04), 70);
-  }
-
-  function playSuccessChord() {
-    playTone(523.25, 0.25, 'sine', 0.06);
-    setTimeout(() => playTone(659.25, 0.28, 'sine', 0.06), 90);
-    setTimeout(() => playTone(783.99, 0.35, 'sine', 0.07), 180);
-    setTimeout(() => playTone(1046.50, 0.5, 'sine', 0.08), 270);
-  }
-
-  function playCommitDing() {
-    playTone(880, 0.12, 'sine', 0.05);
-    setTimeout(() => playTone(1174.66, 0.2, 'sine', 0.05), 80);
-  }
-
-  // Audio Toggle UI
-  const audioToggleBtn = document.getElementById('audio-toggle-btn');
-  const soundIconOn = audioToggleBtn?.querySelector('.sound-icon-on');
-  const soundIconOff = audioToggleBtn?.querySelector('.sound-icon-off');
-
-  audioToggleBtn?.addEventListener('click', () => {
-    isSoundEnabled = !isSoundEnabled;
-    if (isSoundEnabled) {
-      soundIconOn?.classList.remove('hidden');
-      soundIconOff?.classList.add('hidden');
-      initAudio();
-      playTone(660, 0.1, 'sine', 0.05);
-      showToast('Sound effects enabled 🔊');
-    } else {
-      soundIconOn?.classList.add('hidden');
-      soundIconOff?.classList.remove('hidden');
-      showToast('Sound muted 🔇');
-    }
-  });
-
-  // =========================================================================
-  // 2. Theme Switcher (Light / Dark Mode with Persistence)
+  // 1. Theme Switcher (Light / Dark Mode with Persistence)
   // =========================================================================
   const themeToggleBtn = document.getElementById('theme-toggle-btn');
   const themeIconLight = themeToggleBtn?.querySelector('.theme-icon-light');
@@ -111,7 +32,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentTheme = rootHtml.getAttribute('data-theme') || 'light';
     const nextTheme = currentTheme === 'light' ? 'dark' : 'light';
     applyTheme(nextTheme);
-    playTone(580, 0.08, 'sine', 0.03);
   });
 
   // =========================================================================
@@ -165,9 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const vExerciseStat = document.getElementById('v-exercise-stat');
   const vResilienceStat = document.getElementById('v-resilience-stat');
 
-  // Health Status Elements
-  const healthBadge = document.getElementById('health-status');
-  const healthText = document.getElementById('health-text');
+
 
   // Progress ring circumference for Hero Gauge: 2 * pi * 58 ≈ 364.42
   const CIRCUMFERENCE = 364.42;
@@ -191,10 +109,10 @@ document.addEventListener('DOMContentLoaded', () => {
       tagId: 'sleep-status-tag',
       unit: 'hrs',
       getTag: (val) => {
-        if (val < 6.0) return { text: '⚠️ Severe Sleep Debt (<6h)', class: 'warning' };
-        if (val < 7.0) return { text: '🟡 Borderline Rest (Aim for 7h+)', class: 'moderate' };
-        if (val <= 9.0) return { text: '✨ Optimal Rest Window (7-9h)', class: 'healthy' };
-        return { text: '💤 Extended Sleep Duration', class: 'moderate' };
+        if (val < 6.0) return { text: 'Sleep Deficit (<6.0h)', class: 'warning' };
+        if (val < 7.0) return { text: 'Borderline Duration (Aim for 7h+)', class: 'moderate' };
+        if (val <= 9.0) return { text: 'Clinical Optimal (7.0–9.0h)', class: 'healthy' };
+        return { text: 'Extended Sleep Duration', class: 'moderate' };
       }
     },
     {
@@ -203,10 +121,10 @@ document.addEventListener('DOMContentLoaded', () => {
       tagId: 'screen-status-tag',
       unit: 'hrs',
       getTag: (val) => {
-        if (val <= 2.0) return { text: '🌱 Mindful Digital Use (<=2h)', class: 'healthy' };
-        if (val <= 3.5) return { text: '🟡 Moderate Screen Time', class: 'moderate' };
-        if (val <= 6.0) return { text: '⚠️ Heavy Cognitive Load (>3.5h)', class: 'warning' };
-        return { text: '🚨 Extreme Screen Immersion', class: 'warning' };
+        if (val <= 2.0) return { text: 'Low Digital Exposure (<=2.0h)', class: 'healthy' };
+        if (val <= 3.5) return { text: 'Moderate Screen Usage', class: 'moderate' };
+        if (val <= 6.0) return { text: 'Elevated Cognitive Screen Load (>3.5h)', class: 'warning' };
+        return { text: 'High Screen Immersion', class: 'warning' };
       }
     },
     {
@@ -215,9 +133,9 @@ document.addEventListener('DOMContentLoaded', () => {
       tagId: 'unlocks-status-tag',
       unit: '',
       getTag: (val) => {
-        if (val <= 30) return { text: '✨ Mindful Focus (Low checks)', class: 'healthy' };
-        if (val <= 70) return { text: '🟡 Normal Routine Checks', class: 'moderate' };
-        return { text: '⚠️ High Fragmentation (>70 checks)', class: 'warning' };
+        if (val <= 30) return { text: 'Focused Attention (Low interruptions)', class: 'healthy' };
+        if (val <= 70) return { text: 'Standard Routine Checks (35–70)', class: 'moderate' };
+        return { text: 'High Task Fragmentation (>70 checks)', class: 'warning' };
       }
     },
     {
@@ -226,9 +144,9 @@ document.addEventListener('DOMContentLoaded', () => {
       tagId: 'study-status-tag',
       unit: 'hrs',
       getTag: (val) => {
-        if (val < 2.0) return { text: '🌱 Light Study Schedule', class: 'moderate' };
-        if (val <= 6.0) return { text: '🎯 Healthy Study Pace (2-6h)', class: 'healthy' };
-        return { text: '⚠️ Intensive Cramming Schedule', class: 'warning' };
+        if (val < 2.0) return { text: 'Light Study Schedule', class: 'moderate' };
+        if (val <= 6.0) return { text: 'Standard Study Schedule (2.0–6.0h)', class: 'healthy' };
+        return { text: 'Intensive Academic Schedule', class: 'warning' };
       }
     },
     {
@@ -237,9 +155,9 @@ document.addEventListener('DOMContentLoaded', () => {
       tagId: 'exercise-status-tag',
       unit: 'hrs',
       getTag: (val) => {
-        if (val === 0) return { text: '⚠️ Sedentary (Try 20m light walk)', class: 'warning' };
-        if (val <= 2.0) return { text: '💪 Active & Energizing (1-2h)', class: 'healthy' };
-        return { text: '🔥 High Athletic Conditioning', class: 'healthy' };
+        if (val === 0) return { text: 'Sedentary (Activity recommended)', class: 'warning' };
+        if (val <= 2.0) return { text: 'Active & Conditioning (1.0–2.0h)', class: 'healthy' };
+        return { text: 'High Physical Conditioning', class: 'healthy' };
       }
     }
   ];
@@ -260,7 +178,6 @@ document.addEventListener('DOMContentLoaded', () => {
           tagDisplay.className = `slider-tag ${tagInfo.class}`;
         }
 
-        playSliderTick();
         updateVitalityMatrix();
       });
     }
@@ -282,7 +199,6 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.classList.add('active');
         const val = btn.getAttribute('data-val');
         hiddenInput.value = val;
-        playTone(520, 0.05, 'sine', 0.03);
         updateVitalityMatrix();
       });
     });
@@ -297,7 +213,6 @@ document.addEventListener('DOMContentLoaded', () => {
   ['Most_Used_Platform', 'Purpose_Of_Use'].forEach(id => {
     const el = document.getElementById(id);
     el?.addEventListener('change', () => {
-      playTone(480, 0.05, 'sine', 0.02);
       updateVitalityMatrix();
     });
   });
@@ -375,8 +290,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!data) return;
 
       applyFormData(data);
-      playPresetChime();
-      showToast(`Loaded "${btn.textContent.trim()}" preset`);
+      showToast(`Preset loaded: "${btn.textContent.trim()}"`);
     });
   });
 
@@ -517,30 +431,10 @@ document.addEventListener('DOMContentLoaded', () => {
     form.reset();
     applyFormData(archetypes.balanced);
     if (inlineErrorBox) inlineErrorBox.classList.add('hidden');
-    playTone(440, 0.08, 'sine', 0.04);
     showToast('Reset to default values');
   });
 
-  // =========================================================================
-  // 8. Health Status Ping
-  // =========================================================================
-  async function checkHealth() {
-    try {
-      const res = await fetch('/health');
-      if (res.ok) {
-        const data = await res.json();
-        healthBadge.className = 'health-badge healthy';
-        healthText.textContent = data.model_loaded ? 'AI Pipeline Online' : 'Model Degraded';
-      } else {
-        healthBadge.className = 'health-badge degraded';
-        healthText.textContent = 'Service Degraded';
-      }
-    } catch (err) {
-      healthBadge.className = 'health-badge degraded';
-      healthText.textContent = 'Backend Offline';
-    }
-  }
-  checkHealth();
+
 
   // =========================================================================
   // 9. Step Transitions
@@ -608,12 +502,6 @@ document.addEventListener('DOMContentLoaded', () => {
         
         renderSuccessReport(data, payload);
         switchToStep2();
-        playSuccessChord();
-
-        // If score is thriving or good, celebrate with confetti!
-        if (data.prediction >= 6.5) {
-          triggerConfetti();
-        }
       }
     } catch (netErr) {
       handleErrorResponse(0, {
@@ -782,10 +670,8 @@ document.addEventListener('DOMContentLoaded', () => {
       li.addEventListener('click', () => {
         li.classList.toggle('committed');
         if (li.classList.contains('committed')) {
-          playCommitDing();
-          showToast('Goal committed! Added to your wellness plan 🎯');
+          showToast('Recommendation marked as adopted');
         } else {
-          playTone(400, 0.05, 'sine', 0.03);
         }
 
         const committedTotal = recommendationsList.querySelectorAll('.rec-item.committed').length;
@@ -802,13 +688,11 @@ document.addEventListener('DOMContentLoaded', () => {
   simSleepDelta?.addEventListener('input', () => {
     const val = parseFloat(simSleepDelta.value);
     if (simSleepDeltaVal) simSleepDeltaVal.textContent = `+${val.toFixed(1)} hr`;
-    playSliderTick();
   });
 
   simScreenDelta?.addEventListener('input', () => {
     const val = parseFloat(simScreenDelta.value);
     if (simScreenDeltaVal) simScreenDeltaVal.textContent = `-${val.toFixed(1)} hrs`;
-    playSliderTick();
   });
 
   runSimulationBtn?.addEventListener('click', async () => {
@@ -846,7 +730,6 @@ document.addEventListener('DOMContentLoaded', () => {
       if (simResultBadge && simDiffText) {
         simResultBadge.classList.remove('hidden');
         simDiffText.innerHTML = `Simulated Wellbeing Score: <strong>${simData.prediction.toFixed(1)}</strong> (<strong>${diffFormatted} Change</strong>)`;
-        playSuccessChord();
         showToast(`Simulation complete: ${diffFormatted} score adjustment!`);
       }
 
@@ -875,7 +758,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   launchBreathingBtn?.addEventListener('click', () => {
     breathingModal?.classList.remove('hidden');
-    playTone(520, 0.08, 'sine', 0.04);
   });
 
   closeBreathingModal?.addEventListener('click', stopBreathingCycle);
@@ -906,7 +788,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Phase 1: Inhale 4s
     if (breathPhaseText) breathPhaseText.textContent = 'Inhale deeply...';
     if (breathBubble) breathBubble.className = 'breath-bubble inhale';
-    playTone(330, 0.15, 'sine', 0.03);
 
     let secLeft = 4;
     if (breathCountdown) breathCountdown.textContent = `${secLeft}s`;
@@ -922,7 +803,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // Phase 2: Hold 7s
         if (breathPhaseText) breathPhaseText.textContent = 'Hold breath...';
         if (breathBubble) breathBubble.className = 'breath-bubble hold';
-        playTone(440, 0.15, 'sine', 0.03);
         let holdSec = 7;
         if (breathCountdown) breathCountdown.textContent = `${holdSec}s`;
 
@@ -937,7 +817,6 @@ document.addEventListener('DOMContentLoaded', () => {
             // Phase 3: Exhale 8s
             if (breathPhaseText) breathPhaseText.textContent = 'Exhale slowly...';
             if (breathBubble) breathBubble.className = 'breath-bubble exhale';
-            playTone(260, 0.15, 'sine', 0.03);
             let exhaleSec = 8;
             if (breathCountdown) breathCountdown.textContent = `${exhaleSec}s`;
 
@@ -968,7 +847,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   openCounselorModalBtn?.addEventListener('click', () => {
     counselorModal?.classList.remove('hidden');
-    playTone(550, 0.08, 'sine', 0.04);
   });
 
   closeCounselorModal?.addEventListener('click', () => counselorModal?.classList.add('hidden'));
@@ -1054,7 +932,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     inlineErrorBox.classList.remove('hidden');
     inlineErrorBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    playTone(280, 0.2, 'sawtooth', 0.05);
   }
 
   // =========================================================================
